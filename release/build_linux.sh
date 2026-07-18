@@ -40,7 +40,7 @@ ninja -C "$LINUX_BUILD_DIR"
 
 # Group intermediate outputs into a 'dist' directory
 mkdir -p "$LINUX_BUILD_DIR/dist"
-cp "$LINUX_BUILD_DIR"/app/scrcpy "$LINUX_BUILD_DIR/dist/"
+cp "$LINUX_BUILD_DIR"/app/rafibocchi "$LINUX_BUILD_DIR/dist/"
 cp app/data/scrcpy.png "$LINUX_BUILD_DIR/dist/"
 cp app/data/disconnected.png "$LINUX_BUILD_DIR/dist/"
 cp app/scrcpy.1 "$LINUX_BUILD_DIR/dist/"

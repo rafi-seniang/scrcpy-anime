@@ -1,4 +1,4 @@
-strCommand = "cmd /c scrcpy.exe"
+strCommand = "cmd /c rafibocchi.exe"
 
 For Each Arg In WScript.Arguments
     strCommand = strCommand & " """ & replace(Arg, """", """""""""") & """"
