@@ -110,6 +110,7 @@ struct sc_screen {
 
     SDL_Texture *watermark_texture;
     SDL_Texture *panic_texture;
+    struct sc_size panic_texture_size;
     bool panic_mode;
 };
 

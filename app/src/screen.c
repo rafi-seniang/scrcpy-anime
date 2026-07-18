@@ -226,8 +226,10 @@ sc_screen_update_content_rect(struct sc_screen *screen) {
     // Only upscale video frames, not icon
     bool is_icon = !screen->video || screen->disconnected || screen->panic_mode;
 
+    struct sc_size content_size = screen->panic_mode ? screen->panic_texture_size : screen->content_size;
+
     struct sc_size window_size = sc_sdl_get_window_size(screen->window);
-    compute_content_rect(window_size, screen->content_size, is_icon,
+    compute_content_rect(window_size, content_size, is_icon,
                          screen->render_fit, &screen->rect);
 
     if (!is_icon) {
@@ -658,6 +660,7 @@ sc_screen_init(struct sc_screen *screen,
         if (!screen->watermark_texture) {
             LOGW("Could not create watermark texture: %s", SDL_GetError());
         } else {
+            SDL_SetTextureBlendMode(screen->watermark_texture, SDL_BLENDMODE_BLEND);
             SDL_SetTextureAlphaMod(screen->watermark_texture, 180);
         }
 
@@ -687,6 +690,9 @@ sc_screen_init(struct sc_screen *screen,
         screen->panic_texture = SDL_CreateTextureFromSurface(screen->renderer, panic_surface);
         if (!screen->panic_texture) {
             LOGW("Could not create panic texture: %s", SDL_GetError());
+        } else {
+            screen->panic_texture_size.width = panic_surface->w;
+            screen->panic_texture_size.height = panic_surface->h;
         }
         sc_icon_destroy(panic_surface);
     }
