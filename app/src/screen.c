@@ -520,6 +520,8 @@ sc_screen_init(struct sc_screen *screen,
     screen->disconnect_started = false;
     screen->watermark_texture = NULL;
     screen->panic_texture = NULL;
+    screen->panic_texture_size.width = 0;
+    screen->panic_texture_size.height = 0;
     screen->panic_mode = false;
 
     screen->video = params->video;
