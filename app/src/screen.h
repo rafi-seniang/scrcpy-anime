@@ -196,6 +196,9 @@ sc_screen_set_orientation(struct sc_screen *screen,
 void
 sc_screen_set_paused(struct sc_screen *screen, bool paused);
 
+void
+sc_screen_render(struct sc_screen *screen, bool update_content_rect);
+
 // react to SDL events
 void
 sc_screen_handle_event(struct sc_screen *screen, const SDL_Event *event);

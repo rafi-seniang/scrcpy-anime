@@ -247,7 +247,7 @@ sc_screen_update_content_rect(struct sc_screen *screen) {
 //
 // Set the update_content_rect flag if the window or content size may have
 // changed, so that the content rectangle is recomputed
-static void
+void
 sc_screen_render(struct sc_screen *screen, bool update_content_rect) {
     assert(screen->window_shown);
 
