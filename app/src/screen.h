@@ -107,6 +107,10 @@ struct sc_screen {
         sc_tick time; // 0 means none
         struct sc_size size;
     } resize_tracker;
+
+    SDL_Texture *watermark_texture;
+    SDL_Texture *panic_texture;
+    bool panic_mode;
 };
 
 struct sc_screen_params {

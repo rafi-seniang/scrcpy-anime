@@ -528,6 +528,15 @@ sc_input_manager_process_key(struct sc_input_manager *im,
             case SDLK_Q:
                 sc_push_event(SDL_EVENT_QUIT);
                 return;
+            case SDLK_P:
+                if (shift) {
+                    if (video && !repeat && down) {
+                        im->screen->panic_mode = !im->screen->panic_mode;
+                        sc_screen_render(im->screen, true);
+                    }
+                    return;
+                }
+                break;
         }
 
         if (disconnected) {

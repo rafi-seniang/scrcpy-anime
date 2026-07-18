@@ -507,8 +507,10 @@ scrcpy(struct scrcpy_options *options) {
     // It is necessarily initialized here, since the device is connected
     struct sc_server_info *info = &s->server.info;
 
+    char default_title[256];
+    snprintf(default_title, sizeof(default_title), "%s (Bocchi Edition \xf0\x9f\x8e\xb8)", info->device_name);
     const char *window_title =
-        options->window_title ? options->window_title : info->device_name;
+        options->window_title ? options->window_title : default_title;
     assert(window_title);
 
     if (options->update_terminal_title) {

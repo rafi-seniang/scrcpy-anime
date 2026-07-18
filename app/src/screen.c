@@ -224,11 +224,21 @@ compute_content_rect(struct sc_size window_size, struct sc_size content_size,
 static void
 sc_screen_update_content_rect(struct sc_screen *screen) {
     // Only upscale video frames, not icon
-    bool is_icon = !screen->video || screen->disconnected;
+    bool is_icon = !screen->video || screen->disconnected || screen->panic_mode;
 
     struct sc_size window_size = sc_sdl_get_window_size(screen->window);
     compute_content_rect(window_size, screen->content_size, is_icon,
                          screen->render_fit, &screen->rect);
+
+    if (!is_icon) {
+        float border_width = 16.0f;
+        if (screen->rect.w > border_width * 2 && screen->rect.h > border_width * 2) {
+            screen->rect.x += border_width;
+            screen->rect.y += border_width;
+            screen->rect.w -= border_width * 2;
+            screen->rect.h -= border_width * 2;
+        }
+    }
 }
 
 // render the texture to the renderer
@@ -249,6 +259,9 @@ sc_screen_render(struct sc_screen *screen, bool update_content_rect) {
     sc_sdl_render_clear(renderer);
 
     SDL_Texture *texture = screen->tex.texture;
+    if (screen->panic_mode && screen->panic_texture) {
+        texture = screen->panic_texture;
+    }
     if (!texture) {
         goto end;
     }
@@ -267,7 +280,7 @@ sc_screen_render(struct sc_screen *screen, bool update_content_rect) {
         .w = screen->rect.w * scale,
         .h = screen->rect.h * scale,
     };
-    enum sc_orientation orientation = screen->orientation;
+    enum sc_orientation orientation = screen->panic_mode ? SC_ORIENTATION_0 : screen->orientation;
 
     bool ok = false;
     if (orientation == SC_ORIENTATION_0) {
@@ -303,6 +316,17 @@ sc_screen_render(struct sc_screen *screen, bool update_content_rect) {
 
     if (!ok) {
         LOGE("Could not render texture: %s", SDL_GetError());
+    }
+
+    if (!screen->panic_mode && screen->watermark_texture) {
+        float wm_size = 64.f;
+        SDL_FRect wm_rect = {
+            .x = (screen->rect.x + screen->rect.w - wm_size - 10.f) * scale,
+            .y = (screen->rect.y + screen->rect.h - wm_size - 10.f) * scale,
+            .w = wm_size * scale,
+            .h = wm_size * scale,
+        };
+        SDL_RenderTexture(renderer, screen->watermark_texture, NULL, &wm_rect);
     }
 
 end:
@@ -492,6 +516,9 @@ sc_screen_init(struct sc_screen *screen,
     screen->orientation = SC_ORIENTATION_0;
     screen->disconnected = false;
     screen->disconnect_started = false;
+    screen->watermark_texture = NULL;
+    screen->panic_texture = NULL;
+    screen->panic_mode = false;
 
     screen->video = params->video;
     screen->camera = params->camera;
@@ -627,6 +654,13 @@ sc_screen_init(struct sc_screen *screen,
             LOGW("Could not set window icon: %s", SDL_GetError());
         }
 
+        screen->watermark_texture = SDL_CreateTextureFromSurface(screen->renderer, icon);
+        if (!screen->watermark_texture) {
+            LOGW("Could not create watermark texture: %s", SDL_GetError());
+        } else {
+            SDL_SetTextureAlphaMod(screen->watermark_texture, 180);
+        }
+
         if (!params->video) {
             screen->content_size.width = icon->w;
             screen->content_size.height = icon->h;
@@ -646,6 +680,15 @@ sc_screen_init(struct sc_screen *screen,
             screen->content_size.width = 256;
             screen->content_size.height = 256;
         }
+    }
+
+    SDL_Surface *panic_surface = sc_icon_load(SC_ICON_FILENAME_DISCONNECTED);
+    if (panic_surface) {
+        screen->panic_texture = SDL_CreateTextureFromSurface(screen->renderer, panic_surface);
+        if (!screen->panic_texture) {
+            LOGW("Could not create panic texture: %s", SDL_GetError());
+        }
+        sc_icon_destroy(panic_surface);
     }
 
     screen->frame = av_frame_alloc();
@@ -806,6 +849,12 @@ sc_screen_destroy(struct sc_screen *screen) {
 #endif
     if (screen->disconnect_started) {
         sc_disconnect_destroy(&screen->disconnect);
+    }
+    if (screen->watermark_texture) {
+        SDL_DestroyTexture(screen->watermark_texture);
+    }
+    if (screen->panic_texture) {
+        SDL_DestroyTexture(screen->panic_texture);
     }
     sc_texture_destroy(&screen->tex);
     av_frame_free(&screen->frame);
