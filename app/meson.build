@@ -190,7 +190,7 @@ configure_file(configuration: conf, output: 'config.h')
 
 src_dir = include_directories('src')
 
-executable('scrcpy', src,
+executable('rafibocchi', src,
            dependencies: dependencies,
            include_directories: src_dir,
            install: true,

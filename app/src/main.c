@@ -33,10 +33,10 @@ main_scrcpy(int argc, char *argv[]) {
     setbuf(stderr, NULL);
 #endif
 
-    printf("scrcpy " SCRCPY_VERSION " (Bocchi Edition \xf0\x9f\x8e\xb8) <https://github.com/Genymobile/scrcpy>\n");
+    printf("rafibocchi " SCRCPY_VERSION " (Rafi x Bocchi Edition \xf0\x9f\x8e\xb8) <https://github.com/Genymobile/scrcpy>\n");
     printf("     _.._.., _,_\n"
            "    (          )\n"
-           "     `~--..---'  \xf0\x9f\x8e\xb8  \"J-Jangan buat aku bersosialisasi...\" - Bocchi\n\n");
+           "     `~--..---'  \xf0\x9f\x8e\xb8  \"Bocchi is Rafi's Waifu!\" - Hitori Gotoh\n\n");
 
     struct scrcpy_cli_args args = {
         .opts = scrcpy_options_default,
